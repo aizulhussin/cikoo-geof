@@ -9,55 +9,7 @@
 
     class MapContainer extends Component {
         
-     /*global google,myPos*/
-     
-     analyzeRegion = (position, radius) => people => {
-        const { onRegionFiltered = f => f } = this.props;
-        const withinRegion = this.withinRegion(position, radius);
-
-        const mappedPeople = people.map(person => {
-          const { position } = person || {};
-          const within = withinRegion(position);
-          return { ...person, within };
-        });
-
-        onRegionFiltered(mappedPeople);
-      }
-
-      componentDidMount() {
-
-        const { person: { id, position }, radius, people = [], channel = null ,me={ me }} = this.props;
-        const mapContext = this.map.context['__SECRET_MAP_DO_NOT_USE_OR_YOU_WILL_BE_FIRED'];
-        const setMapCenter = mapContext.setCenter.bind(mapContext);
-        
-        console.log("Me"+me);
-
-        let { lat, lng } = position;
-
-        channel && channel.bind('transit', ({ person = {}, people }) => {
-          const { id: $id, position: $position } = person;
-          const isUser = id === $id;
-          const center = isUser ? $position : position;
-
-          isUser && setMapCenter(center);
-          this.analyzeRegion(center, radius)(people);
-        });
-
-        this.positionUpdate = setInterval(() => {
-          lat = lat + Math.random() * 0.001;
-          lng = lng + Math.random() * 0.001;
-
-          axios.post(`/transit/${id}`, { lat, lng });
-        }, 10000);
-
-        this.analyzeRegion(position, radius)(people);
-
-      }
-
-      componentWillUnmount() {
-        clearInterval(this.positionUpdate);
-      }
-
+     /*global google*/    
 
       withinRegion = (position, radius) => {
         const to = new google.maps.LatLng(position.lat, position.lng);
@@ -72,7 +24,7 @@
         const { person: { id, position }, radius, people, channel } = this.props;
 
         return (
-          <GoogleMap ref={elem => this.map = elem} zoom={14} center={position}>
+          <GoogleMap ref={elem => this.map = elem} zoom={15} center={position}>
             <Fragment>
               { people.map((person, index) => {
 
